@@ -11,12 +11,24 @@ namespace GrafoAPI.Business
     {
         private StationRepository Repository = new StationRepository();
 
-
+        /// <summary>
+        /// Consulta a menor rota entre dois pontos
+        /// </summary>
+        /// <param name="origin">Estação de origem</param>
+        /// <param name="destiny">Estação de destino</param>
+        /// <returns></returns>
         public int SmallerRoute(string origin, string destiny)
         {
             return SmallerCrawler(Repository.GetByName(origin), destiny, new List<string>());
         }
 
+        /// <summary>
+        /// Crawler responsável por encontrar menor percurso entre dois pontos
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="destiny"></param>
+        /// <param name="historic"></param>
+        /// <returns></returns>
         private int SmallerCrawler(Station origin, string destiny, List<string> historic)
         {
             var nextStation = origin.NextStation.Where(i => i.Key.Name == destiny).ToDictionary(i => i.Key, i => i.Value);
@@ -52,6 +64,12 @@ namespace GrafoAPI.Business
             }
         }
 
+        /// <summary>
+        /// Consulta viagens que possuem a quantidade de paradas igual a especificada
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="destiny"></param>
+        /// <returns></returns>
         public int EqualStopsRoutes(string origin, string destiny)
         {
             var stationO = Repository.GetByName(origin);
@@ -67,6 +85,13 @@ namespace GrafoAPI.Business
             }
             return count;
         }
+
+        /// <summary>
+        /// Consulta viagens que possuem a quantidade de paradas igual ou menos a especificada
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="destiny"></param>
+        /// <returns></returns>
         public int MaxStopsRoutes(string origin, string destiny)
         {
             var stationO = Repository.GetByName(origin);
@@ -75,6 +100,7 @@ namespace GrafoAPI.Business
             {
                 foreach (var item in stationO.NextStation)
                 {
+
                     var arrived = MaxStopsCrawler(item.Key, destiny,0,false,3);
                     if (arrived > 0)
                         count++;
@@ -82,6 +108,16 @@ namespace GrafoAPI.Business
             }
             return count;
         }
+
+        /// <summary>
+        /// Crawler de busca entre dois pontos 
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="destiny"></param>
+        /// <param name="count"></param>
+        /// <param name="isEqual"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
         private int MaxStopsCrawler(Station origin, string destiny, int count, bool isEqual, int max)
         {
             if (!isEqual)
@@ -109,7 +145,11 @@ namespace GrafoAPI.Business
             }
         }
         
-
+        /// <summary>
+        /// Consulta a distancia para uma rota informada
+        /// </summary>
+        /// <param name="route"></param>
+        /// <returns></returns>
         public int DistanceRoute(string route)
         {
             return DistanceCrawler(route.Split('-'), 0);
